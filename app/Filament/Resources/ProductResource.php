@@ -46,6 +46,7 @@ class ProductResource extends Resource
                                 TextInput::make('slug')
                                     ->required()
                                     ->disabled()
+                                    ->dehydrated()
                                     ->unique(Product::class, 'slug', ignoreRecord: true)
                                     ->maxLength(255),
                                 MarkdownEditor::make('description')

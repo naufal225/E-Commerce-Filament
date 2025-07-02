@@ -41,7 +41,7 @@ class BrandResource extends Resource
                             TextInput::make('name')
                                 ->required()
                                 ->maxLength(255)
-                                ->live()
+                                ->live(debounce: 500)
                                 ->afterStateUpdated(fn(string $operation, $state, Set $set) => $operation == "create" ? $set("slug", Str::slug($state)) : null),
                             TextInput::make('slug')
                                 ->required()
@@ -52,7 +52,7 @@ class BrandResource extends Resource
 
                         ]),
                     FileUpload::make('image')
-                        ->directory("categories")
+                        ->directory("brands")
                         ->image(),
                     Toggle::make('is_active')
                         ->required()

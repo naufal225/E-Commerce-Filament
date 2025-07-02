@@ -40,7 +40,7 @@ class CategoryResource extends Resource
                             TextInput::make('name')
                                 ->required()
                                 ->maxLength(255)
-                                ->live()
+                                ->live(debounce: 500)
                                 ->afterStateUpdated(fn(string $operation, $state, Set $set) => $operation == "create" ? $set("slug", Str::slug($state)) : null),
                             TextInput::make('slug')
                                 ->required()

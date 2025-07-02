@@ -17,10 +17,18 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Filters\SelectFilter;
+use function Laravel\Prompts\text;
 
 class ProductResource extends Resource
 {
@@ -40,9 +48,10 @@ class ProductResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(debounce: 500)
-                                    ->afterStateUpdated(fn (string $operation, $state, Set $set) =>
-                                    $operation == 'create' ? $set("slug", Str::slug($state)) : null
-                                ),
+                                    ->afterStateUpdated(
+                                        fn(string $operation, $state, Set $set) =>
+                                        $operation == 'create' ? $set("slug", Str::slug($state)) : null
+                                    ),
                                 TextInput::make('slug')
                                     ->required()
                                     ->disabled()
@@ -56,7 +65,7 @@ class ProductResource extends Resource
 
                         Section::make("Product Image")
                             ->schema([
-                                FileUpload::make('image')
+                                FileUpload::make('images')
                                     ->multiple()
                                     ->maxFiles(5)
                                     ->reorderable()
@@ -114,13 +123,48 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
+                    ->searchable(),
+
+                TextColumn::make('category.name')
+                    ->sortable(),
+
+                TextColumn::make('brand.name')
+                    ->sortable(),
+
+                TextColumn::make('price')
+                    ->money('IDR')
+                    ->sortable(),
+
+                IconColumn::make('is_featured')
+                    ->boolean(),
+
+                IconColumn::make('in_stock')
+                    ->boolean(),
+
+                IconColumn::make('on_sale')
+                    ->boolean(),
+
+                IconColumn::make('is_active')
+                    ->boolean(),
+
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                 SelectFilter::make('category')
+                    ->relationship('category', 'name'),
+                SelectFilter::make('brand')
+                    ->relationship('brand', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make()
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

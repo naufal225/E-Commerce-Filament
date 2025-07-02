@@ -8,6 +8,7 @@ use App\Models\Category;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -18,7 +19,6 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -71,12 +71,16 @@ class CategoryResource extends Resource
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+
             ])
             ->actions([
-                 ActionGroup::make([
+                ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make()
